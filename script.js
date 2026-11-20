@@ -14,18 +14,76 @@ function createRepositoryItem(event) {
   heading.append(link);
 
   const description = document.createElement("p");
-  description.textContent = event.repo.description;
+  description.textContent = event.repo.description || "No description available.";
 
   const metadata = document.createElement("p");
   metadata.className = "repository-meta";
-  const date = new Date(event.starred_at);
+  const date = new Date(event.starred_at || "");
   const formattedDate = Number.isNaN(date.getTime())
     ? "Unknown date"
     : new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(date);
-  metadata.textContent = `${event.repo.language} · Starred ${formattedDate}`;
+  metadata.textContent = `${event.repo.language || "Unknown language"} · Starred ${formattedDate}`;
 
   item.append(heading, description, metadata);
   return item;
+}
+
+function getStarredRepositories(data) {
+  if (!Array.isArray(data)) {
+    throw new Error("Expected repository data to be an array");
+  }
+
+  return data.filter((event) => {
+    if (!event || typeof event !== "object" || Array.isArray(event)) {
+      throw new Error("Expected each repository event to be an object");
+    }
+
+    if (event.type !== "starred") {
+      return false;
+    }
+
+    const repository = event.repo;
+    if (
+      !repository ||
+      typeof repository !== "object" ||
+      Array.isArray(repository) ||
+      typeof repository.name !== "string" ||
+      !repository.name.trim() ||
+      typeof repository.url !== "string"
+    ) {
+      throw new Error("Starred repository is missing required fields");
+    }
+
+    let url;
+    try {
+      url = new URL(repository.url);
+    } catch {
+      throw new Error("Starred repository has an invalid URL");
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      throw new Error("Starred repository has an invalid URL");
+    }
+
+    if (
+      (repository.description !== undefined &&
+        repository.description !== null &&
+        typeof repository.description !== "string") ||
+      (repository.language !== undefined &&
+        repository.language !== null &&
+        typeof repository.language !== "string")
+    ) {
+      throw new Error("Starred repository has invalid display fields");
+    }
+    if (
+      event.starred_at !== undefined &&
+      event.starred_at !== null &&
+      typeof event.starred_at !== "string"
+    ) {
+      throw new Error("Starred repository has an invalid starred_at");
+    }
+
+    return true;
+  });
 }
 
 async function loadRepositories() {
@@ -36,9 +94,7 @@ async function loadRepositories() {
     }
 
     const events = await response.json();
-    const starredRepositories = events.filter(
-      (event) => event.type === "starred" && event.repo
-    );
+    const starredRepositories = getStarredRepositories(events);
     repositoryList.replaceChildren(...starredRepositories.map(createRepositoryItem));
     statusMessage.textContent = starredRepositories.length
       ? ""

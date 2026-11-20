@@ -1,0 +1,32 @@
+[
+  {
+    "type": "starred",
+    "repo": {
+      "name": "microsoft/vscode",
+      "url": "https://github.com/microsoft/vscode",
+      "description": "Visual Studio Code is a code editor redefined and optimized for building and debugging modern web and cloud applications.",
+      "language": "TypeScript"
+    },
+    "starred_at": "2025-02-14T10:30:00Z"
+  },
+  {
+    "type": "starred",
+    "repo": {
+      "name": "torvalds/linux",
+      "url": "https://github.com/torvalds/linux",
+      "description": "Linux kernel source tree.",
+      "language": "C"
+    },
+    "starred_at": "2025-01-28T16:45:00Z"
+  },
+  {
+    "type": "starred",
+    "repo": {
+      "name": "ohmyzsh/ohmyzsh",
+      "url": "https://github.com/ohmyzsh/ohmyzsh",
+      "description": "A delightful community-driven framework for managing your zsh configuration.",
+      "language": "Shell"
+    },
+    "starred_at": "2024-12-09T08:15:00Z"
+  }
+]
